@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 use std::ffi::OsString;
 use std::process::ExitCode;
+use std::time::{Instant, SystemTime};
+use time::format_description::well_known::Rfc3339;
 
 use anyhow::Result;
 use autoharness::{autoharness_cargo, autoharness_standalone};
@@ -12,7 +14,7 @@ use args_toml::join_args;
 
 use crate::args::StandaloneSubcommand;
 use crate::concrete_playback::playback::{playback_cargo, playback_standalone};
-use crate::json_handler::JsonHandler;
+use crate::frontend::{JsonHandler, create_metadata_json, create_harness_metadata_json, process_harness_results, create_project_metadata_json};
 use crate::list::collect_metadata::{list_cargo, list_standalone};
 use crate::project::Project;
 use crate::session::KaniSession;
@@ -39,7 +41,7 @@ mod list;
 mod metadata;
 mod project;
 
-mod json_handler;
+mod frontend;
 mod session;
 mod util;
 mod version;
@@ -131,101 +133,35 @@ fn standalone_main() -> Result<()> {
 
 /// Run verification on the given project.
 fn verify_project(project: Project, session: KaniSession) -> Result<()> {
+    let wall_start = SystemTime::now();
+    let cpu_start = Instant::now();
+    fn to_rfc3339(t: std::time::SystemTime) -> String {
+        let dt: OffsetDateTime = t.into();
+        dt.format(&Rfc3339).unwrap()
+    }
+
     debug!(?project, "verify_project");
     let mut handler = JsonHandler::new(session.args.export_json.clone());
     // TODO: add session info
     let harnesses = session.determine_targets(project.get_all_harnesses())?;
     debug!(n = harnesses.len(), ?harnesses, "verify_project");
 
+    // Add project and export run metadata using frontend utility
+    handler.add_item("metadata", create_metadata_json());
+    handler.add_item("project", create_project_metadata_json(&project));
+
+    // Add harness metadata using frontend utility
+    for h in &harnesses {
+        handler.add_harness_detail("harness_metadata", create_harness_metadata_json(h));
+    }
+
     // Verification
     let runner = harness_runner::HarnessRunner { sess: &session, project: &project };
+
     let results = runner.check_all_harnesses(&harnesses, Some(&mut handler))?;
-    
-    // Query CBMC info once; reuse for each harness entry
-    let cbmc_info_opt = session.get_cbmc_info().ok();
 
-    for h in harnesses.clone() {
-        let harness_result = results.iter().find(|r| r.harness.pretty_name == h.pretty_name);
-        handler.add_harness_detail("harnesses", json!({
-        // basic name for harnesses
-        "pretty_name": h.pretty_name,
-        "mangled_name":   h.mangled_name,
-        "crate_name":           h.crate_name,
-
-        // original location of the harnesses
-        "original": {
-          "file":       h.original_file,
-          "start_line": h.original_start_line,
-          "end_line":   h.original_end_line
-        },
-
-        // GOTO file generated
-        "goto": h.goto_file.as_ref().map(|p| p.to_string_lossy().to_string()),
-
-        // attributes
-        "kind":                       format!("{:?}", h.attributes.kind),
-        "should_panic":               h.attributes.should_panic,
-        "has_loop_contracts":         h.has_loop_contracts,
-        "is_automatically_generated": h.is_automatically_generated,
-        "solver":        h.attributes.solver.as_ref().map(|s| format!("{:?}", s)),
-        "unwind_value":  h.attributes.unwind_value,        // Option<u32>
-        "contract":      h.contract.as_ref().map(|c| format!("{:?}", c)),
-        "stubs":          h.attributes.stubs.iter().map(|s| format!("{:?}", s)).collect::<Vec<_>>(),
-        "verified_stubs": h.attributes.verified_stubs,
-    }));
-    }
-
-    for h in harnesses.clone() {
-        let harness_result = results.iter().find(|r| r.harness.pretty_name == h.pretty_name);
-        handler.add_harness_detail("cbmc", json!({
-        // basic name for harnesses
-        "harness_id": h.pretty_name,
-
-        // Per-harness CBMC info (key-value pairs) without parsing CBMC stdout
-        "cbmc_metadata": {
-          // Version / OS info (same for all harnesses in a run)
-          "version": cbmc_info_opt.as_ref().map(|i| i.version.clone()),
-          "os_info": cbmc_info_opt.as_ref().map(|i| i.os_info.clone()),
-          // Configuration passed to CBMC for this harness
-          "object_bits": session.args.cbmc_object_bits(), // Option<u32>
-          "solver": h.attributes.solver.as_ref().map(|s| format!("{:?}", s)).unwrap_or_else(|| "Cadical".to_string()),
-          "verbosity": 9
-        },
-        
-        // Additional structured info collected without parsing CBMC stdout (placeholders)
-        "Configuration": {
-          "object_bits": session.args.cbmc_object_bits(),
-          "solver": h.attributes.solver.as_ref().map(|s| format!("{:?}", s)).unwrap_or_else(|| "Cadical".to_string()),
-          "verbosity": 9
-        },
-
-        "summary": harness_result.map_or(json!(null), |result| json!({
-            "total": 1,
-            "status": match result.result.status {
-                crate::call_cbmc::VerificationStatus::Success => "completed",
-                crate::call_cbmc::VerificationStatus::Failure => "failed",
-            }
-        })),
-        "timing": harness_result.map_or(json!(null), |result| json!({
-            "cbmc_runtime": format!("{:.3}s", result.result.runtime.as_secs_f64())
-        })),
-        
-        // CBMC execution statistics extracted from messages
-        "cbmc_stats": harness_result.and_then(|r| r.result.cbmc_stats.as_ref()).map(|s| json!({
-            "runtime_symex_s": s.runtime_symex_s,
-            "size_program_expression": s.size_program_expression,
-            "slicing_removed_assignments": s.slicing_removed_assignments,
-            "vccs_generated": s.vccs_generated,
-            "vccs_remaining": s.vccs_remaining,
-            "runtime_postprocess_equation_s": s.runtime_postprocess_equation_s,
-            "runtime_convert_ssa_s": s.runtime_convert_ssa_s,
-            "runtime_post_process_s": s.runtime_post_process_s,
-            "runtime_solver_s": s.runtime_solver_s,
-            "runtime_decision_procedure_s": s.runtime_decision_procedure_s
-        }))
-    }));
-    }
-
+    // Process harness results and add additional metadata using frontend utility function
+    process_harness_results(&mut handler, &harnesses, &results)?;
 
     if session.args.coverage {
         // We generate a timestamp to save the coverage data in a folder named
@@ -248,7 +184,19 @@ fn verify_project(project: Project, session: KaniSession) -> Result<()> {
         handler.add_item("coverage", json!({"enabled": false}));
     }
 
+    let wall_end = SystemTime::now();
+    let duration_ms = cpu_start.elapsed().as_millis() as u64;
+    handler.add_item(
+        "run_time",
+        json!({
+            "started_at":  to_rfc3339(wall_start),
+            "finished_at": to_rfc3339(wall_end),
+            "duration_ms": duration_ms,
+
+        }),
+    );
     handler.export()?;
+
     session.print_final_summary(&results)
 }
 
