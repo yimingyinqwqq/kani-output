@@ -1,0 +1,1 @@
+/home/ubuntu/Documents/kani-output/docs/src/tutorial/first-steps-v1/target/kani/x86_64-unknown-linux-gnu/debug/libfirst_steps_v1.rlib: /home/ubuntu/Documents/kani-output/docs/src/tutorial/first-steps-v1/src/lib.rs
