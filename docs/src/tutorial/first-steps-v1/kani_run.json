@@ -1,19 +1,65 @@
 {
-  "schema_version": "0.0.0",
-  "run_time": {
-    "started_at": "2025-09-18T21:43:58.758849Z",
-    "finished_at": "2025-09-18T21:43:58.856479Z",
-    "duration_ms": 97
+  "metadata": {
+    "version": "1.0",
+    "timestamp": "2025-09-22T17:11:15.998446509Z",
+    "kani_version": "0.65.0",
+    "target": " ",
+    "build_mode": "release"
   },
+  "project": {
+    "crate_name": [
+      "first_steps_v1"
+    ],
+    "workspace_root": "/home/ubuntu/Documents/kani-output/docs/src/tutorial/first-steps-v1/target/kani/x86_64-unknown-linux-gnu/debug/deps"
+  },
+  "harness_metadata": [
+    {
+      "pretty_name": "check_estimate_size",
+      "mangled_name": "_RNvCs3GS9KvAinr4_14first_steps_v119check_estimate_size",
+      "crate_name": "first_steps_v1",
+      "source": {
+        "file": "src/lib.rs",
+        "start_line": 52,
+        "end_line": 55
+      },
+      "goto_file": "/home/ubuntu/Documents/kani-output/docs/src/tutorial/first-steps-v1/target/kani/x86_64-unknown-linux-gnu/debug/deps/first_steps_v1-555dc54826659679__RNvCs3GS9KvAinr4_14first_steps_v119check_estimate_size.symtab.out",
+      "attributes": {
+        "kind": "Proof",
+        "should_panic": false
+      },
+      "Contract": {
+        "contracted_function_name": null,
+        "recursion_tracker": ""
+      },
+      "has_loop_contracts": false,
+      "is_automatically_generated": false
+    }
+  ],
   "verification_runner_results": {
     "selected": 1,
     "executed": 1,
     "status": "completed",
     "individual_harnesses": [
       {
+        "harness_id": "check_estimate_size",
         "name": "check_estimate_size",
+        "status": "Failure",
+        "verification_details": [
+          {
+            "check_number": 1,
+            "function_name": "estimate_size",
+            "status": "Failure",
+            "description": "Oh no, a failing corner case!",
+            "location": {
+              "file": "src/lib.rs",
+              "line": "14",
+              "column": "13"
+            },
+            "class": "assertion"
+          }
+        ],
         "original": {
-          "file": "./docs/src/tutorial/first-steps-v1/src/lib.rs",
+          "file": "src/lib.rs",
           "start_line": 52,
           "end_line": 55
         },
@@ -31,7 +77,7 @@
           "status": "failed"
         },
         "timing": {
-          "cbmc_runtime": "0.024s"
+          "cbmc_runtime": "0.267s"
         }
       }
     ]
@@ -52,7 +98,37 @@
       }
     }
   ],
+  "cbmc": [
+    {
+      "harness_id": "check_estimate_size",
+      "cbmc_metadata": {
+        "version": "6.7.1",
+        "os_info": "x86_64 linux unix"
+      },
+      "Configuration": {
+        "object_bits": 16,
+        "solver": "Cadical"
+      },
+      "cbmc_stats": {
+        "runtime_symex_s": 0.00220362,
+        "size_program_expression": 150,
+        "slicing_removed_assignments": 81,
+        "vccs_generated": 1,
+        "vccs_remaining": 1,
+        "runtime_postprocess_equation_s": 0.000027351,
+        "runtime_convert_ssa_s": 0.000332304,
+        "runtime_post_process_s": 7.214e-6,
+        "runtime_solver_s": 0.000070042,
+        "runtime_decision_procedure_s": 0.000435649
+      }
+    }
+  ],
   "coverage": {
     "enabled": false
+  },
+  "run_time": {
+    "started_at": "2025-09-22T17:11:15.998443554Z",
+    "finished_at": "2025-09-22T17:11:17.209609137Z",
+    "duration_ms": 1211
   }
 }
