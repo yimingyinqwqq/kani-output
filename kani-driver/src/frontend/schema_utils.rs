@@ -14,6 +14,7 @@ use time::format_description::well_known::Rfc3339;
 use time::OffsetDateTime;
 use crate::project::Project;
 use crate::session::KaniSession;
+use serde::Serialize;
 
 /// Creates structured JSON metadata for an export run
 /// This utility function captures basic environment for the whole session
@@ -277,3 +278,56 @@ pub fn process_cbmc_results(
     }
     Ok(())
 }
+
+/*pub fn process_cbmc_results(
+    handler: &mut JsonHandler,
+    harnesses: &[&HarnessMetadata],
+    _results: &[HarnessResult],
+    session: &KaniSession,
+) -> Result<()> {
+    let cbmc_info_opt = session.get_cbmc_info().ok();
+
+    for h in harnesses {
+        if let Some(cbmc_info) = &cbmc_info_opt {
+            // Serialize cbmc_info into JSON string
+            // let info_str = serde_json::to_string(cbmc_info)?;
+            let info_str = format!("{:?}", cbmc_info);
+
+            use crate::frontend::{add_tool_output, ToolOutput};
+            add_tool_output(
+                handler,
+                ToolOutput {
+                    tool: "cbmc1",
+                    harness_id: h.pretty_name.as_str(),
+                    stdout: &info_str,
+                },
+            );
+        }
+    }
+    Ok(())
+}
+
+
+/// Simple container to standardize tool outputs captured during verification
+#[derive(Serialize)]
+pub struct ToolOutput<'a> {
+    /// Arbitrary tool name key under which this output will be grouped
+    pub tool: &'a str,
+    /// Harness identifier this output belongs to
+    pub harness_id: &'a str,
+    /// Unparsed stdout text emitted by the tool
+    pub stdout: &'a str,
+}
+
+/// Add a tool output entry to the JSON under a tool-named array, mirroring `add_harness_detail` style
+pub fn add_tool_output(handler: &mut JsonHandler, output: ToolOutput<'_>) {
+    // structure: top-level key is the tool name, value is an array of entries
+    handler.add_harness_detail(
+        output.tool,
+        json!({
+            "harness_id": output.harness_id,
+            "stdout": output.stdout,
+        }),
+    );
+}
+*/

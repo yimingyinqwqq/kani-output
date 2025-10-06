@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "1.0",
-    "timestamp": "2025-09-22T17:11:15.998446509Z",
+    "timestamp": "2025-09-30T13:27:49.208685273Z",
     "kani_version": "0.65.0",
     "target": " ",
     "build_mode": "release"
@@ -77,7 +77,7 @@
           "status": "failed"
         },
         "timing": {
-          "cbmc_runtime": "0.267s"
+          "cbmc_runtime": "0.478s"
         }
       }
     ]
@@ -110,16 +110,16 @@
         "solver": "Cadical"
       },
       "cbmc_stats": {
-        "runtime_symex_s": 0.00220362,
+        "runtime_symex_s": 0.005079,
         "size_program_expression": 150,
         "slicing_removed_assignments": 81,
         "vccs_generated": 1,
         "vccs_remaining": 1,
-        "runtime_postprocess_equation_s": 0.000027351,
-        "runtime_convert_ssa_s": 0.000332304,
-        "runtime_post_process_s": 7.214e-6,
-        "runtime_solver_s": 0.000070042,
-        "runtime_decision_procedure_s": 0.000435649
+        "runtime_postprocess_equation_s": 0.000060813,
+        "runtime_convert_ssa_s": 0.000629488,
+        "runtime_post_process_s": 0.000059811,
+        "runtime_solver_s": 0.00199764,
+        "runtime_decision_procedure_s": 0.00268294
       }
     }
   ],
@@ -127,8 +127,8 @@
     "enabled": false
   },
   "run_time": {
-    "started_at": "2025-09-22T17:11:15.998443554Z",
-    "finished_at": "2025-09-22T17:11:17.209609137Z",
-    "duration_ms": 1211
+    "started_at": "2025-09-30T13:27:49.208682889Z",
+    "finished_at": "2025-09-30T13:27:50.778838544Z",
+    "duration_ms": 1570
   }
 }
