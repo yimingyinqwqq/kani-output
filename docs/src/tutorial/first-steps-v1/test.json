@@ -1,0 +1,105 @@
+{
+  "verification_runner_results": {
+    "selected": 1,
+    "executed": 1,
+    "status": "completed",
+    "individual_harnesses": [
+      {
+        "name": "check_estimate_size",
+        "status": "Failure"
+      }
+    ]
+  },
+  "harnesses": [
+    {
+      "pretty_name": "check_estimate_size",
+      "mangled_name": "_RNvCs3GS9KvAinr4_14first_steps_v119check_estimate_size",
+      "crate_name": "first_steps_v1",
+      "original": {
+        "file": "src/lib.rs",
+        "start_line": 52,
+        "end_line": 55
+      },
+      "goto": "/home/ubuntu/Documents/kani-output/docs/src/tutorial/first-steps-v1/target/kani/x86_64-unknown-linux-gnu/debug/deps/first_steps_v1-555dc54826659679__RNvCs3GS9KvAinr4_14first_steps_v119check_estimate_size.symtab.out",
+      "kind": "Proof",
+      "should_panic": false,
+      "has_loop_contracts": false,
+      "is_automatically_generated": false,
+      "solver": null,
+      "unwind_value": null,
+      "contract": null,
+      "stubs": [],
+      "verified_stubs": [],
+      "cbmc": {
+        "version": "6.7.1",
+        "os_info": "x86_64 linux unix",
+        "object_bits": 16,
+        "solver": "Cadical",
+        "verbosity": 9
+      },
+      "Configuration": {
+        "object_bits": 16,
+        "solver": "Cadical",
+        "verbosity": 9
+      },
+      "summary": {
+        "total": 1,
+        "status": "failed"
+      },
+      "timing": {
+        "cbmc_runtime": "0.145s"
+      },
+      "cbmc_stats": {
+        "runtime_symex_s": 0.00931511,
+        "size_program_expression": 150,
+        "slicing_removed_assignments": 81,
+        "vccs_generated": 1,
+        "vccs_remaining": 1,
+        "runtime_postprocess_equation_s": 0.00007904,
+        "runtime_convert_ssa_s": 0.000441062,
+        "runtime_post_process_s": 7.974e-6,
+        "runtime_solver_s": 0.000079529,
+        "runtime_decision_procedure_s": 0.000557901
+      }
+    }
+  ],
+  "cbmc": [
+    {
+      "harness_id": "check_estimate_size",
+      "cbmc_metadata": {
+        "version": "6.7.1",
+        "os_info": "x86_64 linux unix",
+        "object_bits": 16,
+        "solver": "Cadical",
+        "verbosity": 9
+      },
+      "Configuration": {
+        "object_bits": 16,
+        "solver": "Cadical",
+        "verbosity": 9
+      },
+      "summary": {
+        "total": 1,
+        "status": "failed"
+      },
+      "timing": {
+        "cbmc_runtime": "0.145s"
+      },
+      "cbmc_stats": {
+        "runtime_symex_s": 0.00931511,
+        "size_program_expression": 150,
+        "slicing_removed_assignments": 81,
+        "vccs_generated": 1,
+        "vccs_remaining": 1,
+        "runtime_postprocess_equation_s": 0.00007904,
+        "runtime_convert_ssa_s": 0.000441062,
+        "runtime_post_process_s": 7.974e-6,
+        "runtime_solver_s": 0.000079529,
+        "runtime_decision_procedure_s": 0.000557901
+      }
+    }
+  ],
+  "coverage": {
+    "enabled": false
+  }
+}
